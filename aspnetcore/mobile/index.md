@@ -19,4 +19,4 @@ ms.lasthandoff: 08/18/2017
 ---
 # <a name="mobile"></a>移动电话
 
-*   [为本机移动应用程序创建后端服务](native-mobile-backend.md)
+* [为本机移动应用程序创建后端服务](native-mobile-backend.md)
