@@ -1,5 +1,5 @@
 ---
-title: "创建原生移动应用程序的后端服务"
+title: "创建本机移动应用程序的后端服务"
 author: ardalis
 description: 
 keywords: ASP.NET Core
@@ -25,9 +25,9 @@ ms.lasthandoff: 09/28/2017
 
 [查看或下载后端服务的示例代码](https://github.com/aspnet/Docs/tree/master/aspnetcore/mobile/native-mobile-backend/sample)
 
-## <a name="the-sample-native-mobile-app"></a>示例原生移动应用程序
+## <a name="the-sample-native-mobile-app"></a>示例本机移动应用程序
 
-本教程演示如何创建使用 ASP.NET Core MVC 以支持原生移动应用的后端服务。 它使用[Xamarin Forms ToDoRest 应用](https://developer.xamarin.com/guides/xamarin-forms/web-services/consuming/rest/)作为其原生客户端，其中包括 Android、 iOS、 Windows Universal和 Window Phone 设备的单独本机客户端。 你可以遵循链接中的教程来创建原生应用程序 （并安装必须的的免费 Xamarin 工具），以及下载 Xamarin 示例解决方案。 Xamarin 示例包含一个 ASP.NET Web API 2 服务项目，使用本文中的 ASP.NET Core 应用替换 （客户端无需进行任何更改）。
+本教程演示如何创建使用 ASP.NET Core MVC 支持本机移动应用的后端服务。 它使用[Xamarin Forms ToDoRest 应用](https://developer.xamarin.com/guides/xamarin-forms/web-services/consuming/rest/)作为其本机客户端，其中包括 Android、 iOS、 Windows Universal 和 Window Phone 设备的单独本机客户端。 你可以遵循链接中的教程来创建本机应用程序（并安装需要的免费 Xamarin 工具），以及下载 Xamarin 示例解决方案。 Xamarin 示例包含一个 ASP.NET Web API 2 服务项目，使用本文中的 ASP.NET Core 应用替换（客户端无需进行任何更改）。
 
 ![在 Android 智能手机上运行的执行操作的 Rest 应用程序](native-mobile-backend/_static/todo-android.png)
 
@@ -35,7 +35,7 @@ ms.lasthandoff: 09/28/2017
 
 ToDoRest 应用支持列出、 添加、 删除和更新待办事项。 每个项都有一个 ID、 Name（名称）、 Notes（说明）以及一个指示该项是否已完成的属性Done。
 
-待办事项的主视图如上所示，列出每个项的名称，并使用Checkmark指示它是否已完成。
+待办事项的主视图如上所示，列出每个项的名称，并使用复选标记指示它是否已完成。
 
 点击`+`图标可打开添加项对话框：
 
@@ -45,7 +45,7 @@ ToDoRest 应用支持列出、 添加、 删除和更新待办事项。 每个�
 
 ![编辑项对话框](native-mobile-backend/_static/todo-android-edit-item.png)
 
-此示例默认配置为使用托管在 developer.xamarin.com上的后端服务，允许只读操作。 若要测试在你计算机上运行的下一节中创建的 ASP.NET Core 应用，你需要更新应用程序的`RestUrl`常量。 导航到`ToDoREST`项目，然后打开*Constants.cs*文件。 使用包含您的计算机的 IP 的 URL 地址替换`RestUrl` （不是 localhost 或 127.0.0.1，因为此地址用于从设备模拟器中不是从您的计算机中访问）。 请包括端口号 (5000)。 为了测试设备能正常访问你的服务，请确保没有活动的防火墙阻止访问此端口。
+此示例默认配置为使用托管在 developer.xamarin.com上的后端服务，允许只读操作。 若要使用在你计算机上运行的下一节创建的 ASP.NET Core 应用对其进行测试，你需要更新应用程序的 `RestUrl` 常量。 导航到 `ToDoREST` 项目，然后打开 *Constants.cs* 文件。 使用包含计算机 IP 的 URL 地址替换 `RestUrl`（不是 localhost 或 127.0.0.1，因为此地址用于从设备模拟器中，而不是从你的计算机中访问）。 请包括端口号 (5000)。 为了测试你的服务能否在设备上正常运行，请确保没有活动的防火墙阻止访问此端口。
 
 ```csharp
 // URL of REST service (Xamarin ReadOnly Service)
@@ -57,7 +57,7 @@ public static string RestUrl = "http://192.168.1.207:5000/api/todoitems/{0}";
 
 ## <a name="creating-the-aspnet-core-project"></a>创建 ASP.NET Core 项目
 
-在 Visual Studio 中创建一个新的 ASP.NET Core Web 应用程序。 选择 Web API 模板和No Authentication（无身份验证）。 将项目命名为*ToDoApi*。
+在 Visual Studio 中创建一个新的 ASP.NET Core Web 应用程序。 选择 Web API 模板和 No Authentication（无身份验证）。 将项目命名为 *ToDoApi*。
 
 ![与选择的 Web API 项目模板的新建 ASP.NET Web 应用程序对话框](native-mobile-backend/_static/web-api-template.png)
 
@@ -66,17 +66,17 @@ public static string RestUrl = "http://192.168.1.207:5000/api/todoitems/{0}";
 [!code-csharp[Main](native-mobile-backend/sample/ToDoApi/src/ToDoApi/Program.cs?range=10-16&highlight=3)]
 
 > [!NOTE]
-> 请确保您直接运行应用程序，而不是在 IIS Express 中，默认情况下忽略非本地请求。 从命令提示符处运行`dotnet run`，或从 Visual Studio 工具栏中的Debug Target 下拉列表中选择应用程序名称配置文件。
+> 请确保直接运行应用程序，而不是在 IIS Express 后运行，因为在默认情况下，后者会忽略非本地请求。 从命令提示符处运行 `dotnet run`，或从 Visual Studio 工具栏中的“调试目标”下拉列表中选择应用程序名称配置文件。
 
 添加一个模型类来表示待办事项。 使用`[Required]`属性标记必需字段：
 
 [!code-csharp[Main](native-mobile-backend/sample/ToDoApi/src/ToDoApi/Models/ToDoItem.cs)]
 
-API 方法需要某种方式处理数据。 使用与源 Xamarin 示例使用的相同的`IToDoRepository`接口：
+API 方法需要通过某种方式处理数据。 使用原始 Xamarin 示例所用的`IToDoRepository`接口：
 
 [!code-csharp[Main](native-mobile-backend/sample/ToDoApi/src/ToDoApi/Interfaces/IToDoRepository.cs)]
 
-在此示例中，该实现只需使用一个私有的项集合：
+在此示例中，该实现仅使用一个专用项集合：
 
 [!code-csharp[Main](native-mobile-backend/sample/ToDoApi/src/ToDoApi/Services/ToDoRepository.cs)]
 
@@ -155,4 +155,4 @@ API 方法需要某种方式处理数据。 使用与源 Xamarin 示例使用的
 
 开发应用程序的后端服务时，你将想要使用一组一致的约定或策略来处理横切关注点。 例如，在上面所示服务中，为请求不存在的特定记录会收到`NotFound`响应，而不是`BadRequest`响应。 同样，对此服务中，传递模型绑定类型的命令始终检查`ModelState.IsValid`并未无效的模型类型返回`BadRequest`。
 
-一旦您已经为您的 Api 标识了通用策略，一般你可以将其封装在[Filter（筛选器）]中(../mvc/controllers/filters.md)。 详细了解[如何封装 ASP.NET Core MVC 应用程序中的通用 API 策略](https://msdn.microsoft.com/magazine/mt767699.aspx)。
+一旦为 Api 指定通用策略，一般可以将其封装在[Filter（筛选器）]中(../mvc/controllers/filters.md)。 详细了解[如何封装 ASP.NET Core MVC 应用程序中的通用 API 策略](https://msdn.microsoft.com/magazine/mt767699.aspx)。
