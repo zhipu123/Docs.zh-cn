@@ -74,7 +74,7 @@ SqlException: Invalid column name 'Rating'.
 
 <span data-ttu-id="0ce37-141">生成解决方案。</span><span class="sxs-lookup"><span data-stu-id="0ce37-141">Build the solution.</span></span>
 
-<span data-ttu-id="0ce37-142"><a name="pmc"></a> 从“工具”菜单中，选择“NuGet 包管理器”>“包管理器控制台”。</span><span class="sxs-lookup"><span data-stu-id="0ce37-142"><a name="pmc"></a> From the **Tools** menu, select **NuGet Package Manager > Package Manager Console**.</span></span>
+<a name="pmc"></a> <span data-ttu-id="0ce37-142">从“工具”菜单中，选择“NuGet 包管理器”>“包管理器控制台”。</span><span class="sxs-lookup"><span data-stu-id="0ce37-142">From the **Tools** menu, select **NuGet Package Manager > Package Manager Console**.</span></span>
 <span data-ttu-id="0ce37-143">在 PMC 中，输入以下命令：</span><span class="sxs-lookup"><span data-stu-id="0ce37-143">In the PMC, enter the following commands:</span></span>
 
 ```powershell
@@ -89,7 +89,7 @@ Update-Database
 
 <span data-ttu-id="0ce37-147">名称“Rating”是任意的，用于对迁移文件进行命名。</span><span class="sxs-lookup"><span data-stu-id="0ce37-147">The name "Rating" is arbitrary and is used to name the migration file.</span></span> <span data-ttu-id="0ce37-148">为迁移文件使用有意义的名称是有帮助的。</span><span class="sxs-lookup"><span data-stu-id="0ce37-148">It's helpful to use a meaningful name for the migration file.</span></span>
 
-<span data-ttu-id="0ce37-149"><a name="ssox"></a> 如果删除 DB 中的所有记录，种子初始值设定项会设定 DB 种子，并将包括 `Rating` 字段。</span><span class="sxs-lookup"><span data-stu-id="0ce37-149"><a name="ssox"></a> If you delete all the records in the DB, the initializer will seed the DB and include the `Rating` field.</span></span> <span data-ttu-id="0ce37-150">可以使用浏览器中的删除链接，也可以从 [Sql Server 对象资源管理器](xref:tutorials/razor-pages/sql#ssox) (SSOX) 执行此操作。</span><span class="sxs-lookup"><span data-stu-id="0ce37-150">You can do this with the delete links in the browser or from [Sql Server Object Explorer](xref:tutorials/razor-pages/sql#ssox) (SSOX).</span></span> <span data-ttu-id="0ce37-151">从 SSOX 中删除数据库：</span><span class="sxs-lookup"><span data-stu-id="0ce37-151">To delete the database from SSOX:</span></span>
+<a name="ssox"></a> <span data-ttu-id="0ce37-149">如果删除 DB 中的所有记录，种子初始值设定项会设定 DB 种子，并将包括 `Rating` 字段。</span><span class="sxs-lookup"><span data-stu-id="0ce37-149">If you delete all the records in the DB, the initializer will seed the DB and include the `Rating` field.</span></span> <span data-ttu-id="0ce37-150">可以使用浏览器中的删除链接，也可以从 [Sql Server 对象资源管理器](xref:tutorials/razor-pages/sql#ssox) (SSOX) 执行此操作。</span><span class="sxs-lookup"><span data-stu-id="0ce37-150">You can do this with the delete links in the browser or from [Sql Server Object Explorer](xref:tutorials/razor-pages/sql#ssox) (SSOX).</span></span> <span data-ttu-id="0ce37-151">从 SSOX 中删除数据库：</span><span class="sxs-lookup"><span data-stu-id="0ce37-151">To delete the database from SSOX:</span></span>
 
 * <span data-ttu-id="0ce37-152">在 SSOX 中选择数据库。</span><span class="sxs-lookup"><span data-stu-id="0ce37-152">Select the database in SSOX.</span></span>
 * <span data-ttu-id="0ce37-153">右键单击数据库，并选择“删除”。</span><span class="sxs-lookup"><span data-stu-id="0ce37-153">Right click on the database, and select *Delete*.</span></span>
