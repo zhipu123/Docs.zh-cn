@@ -1,234 +1,314 @@
 ---
 title: "绑定和缩减中 ASP.NET 核心"
-author: spboyer
-description: 
-keywords: "ASP.NET 核心、 绑定和缩减、 CSS、 JavaScript，Minify，BuildBundlerMinifier"
-ms.author: riande
+author: scottaddie
+description: "了解如何通过应用绑定和缩减技术优化 ASP.NET 核心 web 应用程序中的静态资源。"
 manager: wpickett
-ms.date: 02/28/2017
-ms.topic: article
-ms.assetid: d54230f9-8e5f-4861-a29c-1d3a14e0b0d9
-ms.technology: aspnet
+ms.author: scaddie
+ms.custom: mvc
+ms.date: 12/01/2017
+ms.devlang: csharp
 ms.prod: aspnet-core
+ms.technology: aspnet
+ms.topic: article
 uid: client-side/bundling-and-minification
-ms.openlocfilehash: 11528cb2067ced79a09845f9ff78d897da033438
-ms.sourcegitcommit: 78d28178345a0eea91556e4cd1adad98b1446db8
+ms.openlocfilehash: c271b7ef386bacedbd45fbe9f62c9c486db55b36
+ms.sourcegitcommit: 05e798c9bac7b9e9983599afb227ef393905d023
 ms.translationtype: MT
 ms.contentlocale: zh-CN
-ms.lasthandoff: 09/22/2017
+ms.lasthandoff: 12/05/2017
 ---
-# <a name="bundling-and-minification-in-aspnet-core"></a><span data-ttu-id="0ed38-103">绑定和缩减中 ASP.NET 核心</span><span class="sxs-lookup"><span data-stu-id="0ed38-103">Bundling and minification in ASP.NET Core</span></span>
+# <a name="bundling-and-minification"></a><span data-ttu-id="30f9e-103">绑定和缩减</span><span class="sxs-lookup"><span data-stu-id="30f9e-103">Bundling and minification</span></span>
 
-<span data-ttu-id="0ed38-104">绑定和缩减是两种技术可以在 ASP.NET 中使用，来提高 web 应用程序的页面加载性能。</span><span class="sxs-lookup"><span data-stu-id="0ed38-104">Bundling and minification are two techniques you can use in ASP.NET to improve page load performance for your web application.</span></span> <span data-ttu-id="0ed38-105">绑定将多个文件合并到单个文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-105">Bundling combines multiple files into a single file.</span></span> <span data-ttu-id="0ed38-106">缩减执行各种不同的代码优化到脚本和 CSS，这会导致较小的负载。</span><span class="sxs-lookup"><span data-stu-id="0ed38-106">Minification performs a variety of different code optimizations to scripts and CSS, which results in smaller payloads.</span></span> <span data-ttu-id="0ed38-107">一起使用时，绑定和缩减可以提高负载时间性能通过减少到服务器的请求数和减少的请求资产 （如 CSS 和 JavaScript 文件） 的大小。</span><span class="sxs-lookup"><span data-stu-id="0ed38-107">Used together, bundling and minification improves load time performance by reducing the number of requests to the server and reducing the size of the requested assets (such as CSS and JavaScript files).</span></span>
+<span data-ttu-id="30f9e-104">作者：[Scott Addie](https://twitter.com/Scott_Addie)</span><span class="sxs-lookup"><span data-stu-id="30f9e-104">By [Scott Addie](https://twitter.com/Scott_Addie)</span></span>
 
-<span data-ttu-id="0ed38-108">此文章介绍了使用绑定和缩减，包括如何与 ASP.NET 核心应用程序使用这些功能的好处。</span><span class="sxs-lookup"><span data-stu-id="0ed38-108">This article explains the benefits of using bundling and minification, including how these features can be used with ASP.NET Core applications.</span></span>
+<span data-ttu-id="30f9e-105">本文介绍了应用绑定和缩减，包括如何使用 ASP.NET Core web apps 使用这些功能的好处。</span><span class="sxs-lookup"><span data-stu-id="30f9e-105">This article explains the benefits of applying bundling and minification, including how these features can be used with ASP.NET Core web apps.</span></span>
 
-## <a name="overview"></a><span data-ttu-id="0ed38-109">概述</span><span class="sxs-lookup"><span data-stu-id="0ed38-109">Overview</span></span>
+## <a name="what-is-bundling-and-minification"></a><span data-ttu-id="30f9e-106">绑定和缩减是什么？</span><span class="sxs-lookup"><span data-stu-id="30f9e-106">What is bundling and minification?</span></span>
 
-<span data-ttu-id="0ed38-110">在 ASP.NET Core 应用中，有多个绑定和贴图层客户端资源选项。</span><span class="sxs-lookup"><span data-stu-id="0ed38-110">In ASP.NET Core apps, there are multiple options for bundling and minifying client-side resources.</span></span> <span data-ttu-id="0ed38-111">MVC 的核心模板提供现成可用解决方案使用配置文件和 BuildBundlerMinifier NuGet 包。</span><span class="sxs-lookup"><span data-stu-id="0ed38-111">The core templates for MVC provide an out-of-the-box solution using a configuration file and BuildBundlerMinifier NuGet package.</span></span> <span data-ttu-id="0ed38-112">第三方工具，如[Gulp](using-gulp.md)和[Grunt](using-grunt.md)也已可完成相同任务应你的过程中需要的其他工作流或复杂性。</span><span class="sxs-lookup"><span data-stu-id="0ed38-112">Third party tools, such as [Gulp](using-gulp.md) and [Grunt](using-grunt.md) are also available to accomplish the same tasks should your processes require additional workflow or complexities.</span></span> <span data-ttu-id="0ed38-113">通过使用设计时绑定和缩减，在应用程序的部署之前创建缩减的文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-113">By using design-time bundling and minification, the minified files are created prior to the application’s deployment.</span></span> <span data-ttu-id="0ed38-114">绑定和在部署前贴图层提供减少的服务器负载的优点。</span><span class="sxs-lookup"><span data-stu-id="0ed38-114">Bundling and minifying before deployment provides the advantage of reduced server load.</span></span> <span data-ttu-id="0ed38-115">但是，务必要识别该设计时绑定，缩减会增加生成复杂性，并且仅适用于静态文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-115">However, it’s important to recognize that design-time bundling and minification increases build complexity and only works with static files.</span></span>
+<span data-ttu-id="30f9e-107">绑定和缩减是可以应用的 web 应用中的两个不同的性能优化。</span><span class="sxs-lookup"><span data-stu-id="30f9e-107">Bundling and minification are two distinct performance optimizations you can apply in a web app.</span></span> <span data-ttu-id="30f9e-108">一起使用时，绑定和缩减提高性能通过减少服务器请求数和减少的请求的静态资产的大小。</span><span class="sxs-lookup"><span data-stu-id="30f9e-108">Used together, bundling and minification improve performance by reducing the number of server requests and reducing the size of the requested static assets.</span></span>
 
-<span data-ttu-id="0ed38-116">绑定和缩减主要提高第一个页面请求加载时间。</span><span class="sxs-lookup"><span data-stu-id="0ed38-116">Bundling and minification primarily improve the first page request load time.</span></span> <span data-ttu-id="0ed38-117">一旦已请求网页上，浏览器缓存的资产 （JavaScript、 CSS 和图像） 因此绑定和缩减在请求同一页面时，不会提供任何性能提升，或在同一站点请求相同的资产。</span><span class="sxs-lookup"><span data-stu-id="0ed38-117">Once a web page has been requested, the browser caches the assets (JavaScript, CSS and images) so bundling and minification won’t provide any performance boost when requesting the same page, or pages on the same site requesting the same assets.</span></span> <span data-ttu-id="0ed38-118">如果未设置过期标头在你的资产上正常和不使用绑定和缩减、 浏览器的新鲜度试探方法会将标记为资产陈旧在几天后和浏览器将需要为每个资产的验证请求。</span><span class="sxs-lookup"><span data-stu-id="0ed38-118">If you don’t set the expires header correctly on your assets, and you don’t use bundling and minification, the browser's freshness heuristics will mark the assets stale after a few days and the browser will require a validation request for each asset.</span></span> <span data-ttu-id="0ed38-119">在这种情况下，绑定和缩减性能提高了性能即使在第一个页面请求之后。</span><span class="sxs-lookup"><span data-stu-id="0ed38-119">In this case, bundling and minification provide a performance increase even after the first page request.</span></span>
+<span data-ttu-id="30f9e-109">绑定和缩减主要提高第一个页面请求加载时间。</span><span class="sxs-lookup"><span data-stu-id="30f9e-109">Bundling and minification primarily improve the first page request load time.</span></span> <span data-ttu-id="30f9e-110">一旦已请求网页上，浏览器缓存静态资产 （JavaScript、 CSS 和图像）。</span><span class="sxs-lookup"><span data-stu-id="30f9e-110">Once a web page has been requested, the browser caches the static assets (JavaScript, CSS, and images).</span></span> <span data-ttu-id="30f9e-111">因此，绑定和缩减不时提高性能请求的同一页上或页，请求相同的资产在同一站点上。</span><span class="sxs-lookup"><span data-stu-id="30f9e-111">Consequently, bundling and minification don't improve performance when requesting the same page, or pages, on the same site requesting the same assets.</span></span> <span data-ttu-id="30f9e-112">如果未设置过期标头正确资产，而且如果不使用绑定和缩减，浏览器的新鲜度试探法将标记资产陈旧在几天后。</span><span class="sxs-lookup"><span data-stu-id="30f9e-112">If you don't set the expires header correctly on your assets, and if you don’t use bundling and minification, the browser's freshness heuristics mark the assets stale after a few days.</span></span> <span data-ttu-id="30f9e-113">此外，浏览器需要为每个资产的验证请求。</span><span class="sxs-lookup"><span data-stu-id="30f9e-113">Additionally, the browser requires a validation request for each asset.</span></span> <span data-ttu-id="30f9e-114">在这种情况下，绑定和缩减提供在第一个页面请求后的提高性能。</span><span class="sxs-lookup"><span data-stu-id="30f9e-114">In this case, bundling and minification provide a performance improvement even after the first page request.</span></span>
 
-### <a name="bundling"></a><span data-ttu-id="0ed38-120">绑定</span><span class="sxs-lookup"><span data-stu-id="0ed38-120">Bundling</span></span>
+### <a name="bundling"></a><span data-ttu-id="30f9e-115">绑定</span><span class="sxs-lookup"><span data-stu-id="30f9e-115">Bundling</span></span>
 
-<span data-ttu-id="0ed38-121">绑定是一种功能，可以轻松地合并或捆绑到单个文件的多个文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-121">Bundling is a feature that makes it easy to combine or bundle multiple files into a single file.</span></span> <span data-ttu-id="0ed38-122">由于绑定将多个文件合并到单个文件，它可请求数减少到检索和显示 web 资产，例如 web 页所需的服务器。</span><span class="sxs-lookup"><span data-stu-id="0ed38-122">Because bundling combines multiple files into a single file, it reduces the number of requests to the server that are required to retrieve and display a web asset, such as a web page.</span></span> <span data-ttu-id="0ed38-123">你可以创建 CSS、 JavaScript 和其他捆绑包。</span><span class="sxs-lookup"><span data-stu-id="0ed38-123">You can create CSS, JavaScript and other bundles.</span></span> <span data-ttu-id="0ed38-124">少选一些文件意味着少数几个 HTTP 请求从你的浏览器到服务器或提供你的应用程序的服务。</span><span class="sxs-lookup"><span data-stu-id="0ed38-124">Fewer files means fewer HTTP requests from your browser to the server or from the service providing your application.</span></span> <span data-ttu-id="0ed38-125">第一个页面加载性能改善中的此结果。</span><span class="sxs-lookup"><span data-stu-id="0ed38-125">This results in improved first page load performance.</span></span>
+<span data-ttu-id="30f9e-116">绑定将多个文件合并到单个文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-116">Bundling combines multiple files into a single file.</span></span> <span data-ttu-id="30f9e-117">绑定可减少的所需呈现 web 资产，例如 web 页的服务器请求数。</span><span class="sxs-lookup"><span data-stu-id="30f9e-117">Bundling reduces the number of server requests which are necessary to render a web asset, such as a web page.</span></span> <span data-ttu-id="30f9e-118">可以专门为 CSS、 JavaScript 等创建任意数量的各项捆绑。少选一些文件意味着从浏览器到服务器或提供你的应用程序的服务的少数几个 HTTP 请求。</span><span class="sxs-lookup"><span data-stu-id="30f9e-118">You can create any number of individual bundles specifically for CSS, JavaScript, etc. Fewer files means fewer HTTP requests from the browser to the server or from the service providing your application.</span></span> <span data-ttu-id="30f9e-119">第一个页面加载性能改善中的此结果。</span><span class="sxs-lookup"><span data-stu-id="30f9e-119">This results in improved first page load performance.</span></span>
 
-### <a name="minification"></a><span data-ttu-id="0ed38-126">缩减</span><span class="sxs-lookup"><span data-stu-id="0ed38-126">Minification</span></span>
+### <a name="minification"></a><span data-ttu-id="30f9e-120">缩减</span><span class="sxs-lookup"><span data-stu-id="30f9e-120">Minification</span></span>
 
-<span data-ttu-id="0ed38-127">缩减执行各种不同的代码优化，从而降低的请求资产 （如 CSS、 图像、 JavaScript 文件） 的大小。</span><span class="sxs-lookup"><span data-stu-id="0ed38-127">Minification performs a variety of different code optimizations to reduce the size of requested assets (such as CSS, images, JavaScript files).</span></span> <span data-ttu-id="0ed38-128">常见的结果的缩减包括删除不必要的空白区域和注释，并缩短为一个字符的变量名。</span><span class="sxs-lookup"><span data-stu-id="0ed38-128">Common results of minification include removing unnecessary white space and comments, and shortening variable names to one character.</span></span>
+<span data-ttu-id="30f9e-121">缩减从代码中移除而无需更改功能的不必要的字符。</span><span class="sxs-lookup"><span data-stu-id="30f9e-121">Minification removes unnecessary characters from code without altering functionality.</span></span> <span data-ttu-id="30f9e-122">结果是显著的大小减少请求资产 （如 CSS、 映像和 JavaScript 文件） 中。</span><span class="sxs-lookup"><span data-stu-id="30f9e-122">The result is a significant size reduction in requested assets (such as CSS, images, and JavaScript files).</span></span> <span data-ttu-id="30f9e-123">常见的缩减的负面影响包括缩短为一个字符的变量名和删除注释和多余的空格。</span><span class="sxs-lookup"><span data-stu-id="30f9e-123">Common side effects of minification include shortening variable names to one character and removing comments and unnecessary whitespace.</span></span>
 
-<span data-ttu-id="0ed38-129">请考虑下面的 JavaScript 函数：</span><span class="sxs-lookup"><span data-stu-id="0ed38-129">Consider the following JavaScript function:</span></span>
+<span data-ttu-id="30f9e-124">请考虑下面的 JavaScript 函数：</span><span class="sxs-lookup"><span data-stu-id="30f9e-124">Consider the following JavaScript function:</span></span>
 
-```javascript
-AddAltToImg = function (imageTagAndImageID, imageContext) {
-  ///<signature>
-  ///<summary> Adds an alt tab to the image
-  // </summary>
-  //<param name="imgElement" type="String">The image selector.</param>
-  //<param name="ContextForImage" type="String">The image context.</param>
-  ///</signature>
-  var imageElement = $(imageTagAndImageID, imageContext);
-  imageElement.attr('alt', imageElement.attr('id').replace(/ID/, ''));
-}
-```
+[!code-javascript[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/wwwroot/js/site.js)]
 
-<span data-ttu-id="0ed38-130">后缩减，该函数将都会减少到以下：</span><span class="sxs-lookup"><span data-stu-id="0ed38-130">After minification, the function is reduced to the following:</span></span>
+<span data-ttu-id="30f9e-125">缩减缩小为以下函数：</span><span class="sxs-lookup"><span data-stu-id="30f9e-125">Minification reduces the function to the following:</span></span>
 
-```javascript
-AddAltToImg=function(t,a){var r=$(t,a);r.attr("alt",r.attr("id").replace(/ID/,""))};
-```
+[!code-javascript[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/wwwroot/js/site.min.js)]
 
-<span data-ttu-id="0ed38-131">除了删除注释和多余的空格，以下参数和变量名已重命名 （缩短），如下所示：</span><span class="sxs-lookup"><span data-stu-id="0ed38-131">In addition to removing the comments and unnecessary whitespace, the following parameters and variable names were renamed (shortened) as follows:</span></span>
+<span data-ttu-id="30f9e-126">除了删除注释和多余的空格，则以下参数和变量已重命名名称，如下所示：</span><span class="sxs-lookup"><span data-stu-id="30f9e-126">In addition to removing the comments and unnecessary whitespace, the following parameter and variable names were renamed as follows:</span></span>
 
-<span data-ttu-id="0ed38-132">原始</span><span class="sxs-lookup"><span data-stu-id="0ed38-132">Original</span></span> | <span data-ttu-id="0ed38-133">重命名</span><span class="sxs-lookup"><span data-stu-id="0ed38-133">Renamed</span></span>
+<span data-ttu-id="30f9e-127">原始</span><span class="sxs-lookup"><span data-stu-id="30f9e-127">Original</span></span> | <span data-ttu-id="30f9e-128">重命名</span><span class="sxs-lookup"><span data-stu-id="30f9e-128">Renamed</span></span>
 --- | :---:
-<span data-ttu-id="0ed38-134">imageTagAndImageID</span><span class="sxs-lookup"><span data-stu-id="0ed38-134">imageTagAndImageID</span></span> | <span data-ttu-id="0ed38-135">T</span><span class="sxs-lookup"><span data-stu-id="0ed38-135">t</span></span>
-<span data-ttu-id="0ed38-136">imageContext</span><span class="sxs-lookup"><span data-stu-id="0ed38-136">imageContext</span></span> | <span data-ttu-id="0ed38-137">a</span><span class="sxs-lookup"><span data-stu-id="0ed38-137">a</span></span>
-<span data-ttu-id="0ed38-138">imageElement</span><span class="sxs-lookup"><span data-stu-id="0ed38-138">imageElement</span></span> | <span data-ttu-id="0ed38-139">r</span><span class="sxs-lookup"><span data-stu-id="0ed38-139">r</span></span>
+`imageTagAndImageID` | `t`
+`imageContext` | `a`
+`imageElement` | `r`
 
-## <a name="impact-of-bundling-and-minification"></a><span data-ttu-id="0ed38-140">绑定和缩减的影响</span><span class="sxs-lookup"><span data-stu-id="0ed38-140">Impact of bundling and minification</span></span>
+## <a name="impact-of-bundling-and-minification"></a><span data-ttu-id="30f9e-129">绑定和缩减的影响</span><span class="sxs-lookup"><span data-stu-id="30f9e-129">Impact of bundling and minification</span></span>
 
-<span data-ttu-id="0ed38-141">下表显示单独列出所有资产，然后在简单的网页上使用绑定和缩减的几个重要区别：</span><span class="sxs-lookup"><span data-stu-id="0ed38-141">The following table shows several important differences between listing all the assets individually and using bundling and minification on a simple web page:</span></span>
+<span data-ttu-id="30f9e-130">下表概述了单独加载资产与使用绑定和缩减之间的差异：</span><span class="sxs-lookup"><span data-stu-id="30f9e-130">The following table outlines differences between individually loading assets and using bundling and minification:</span></span>
 
-<span data-ttu-id="0ed38-142">操作</span><span class="sxs-lookup"><span data-stu-id="0ed38-142">Action</span></span> | <span data-ttu-id="0ed38-143">与 B/M</span><span class="sxs-lookup"><span data-stu-id="0ed38-143">With B/M</span></span> | <span data-ttu-id="0ed38-144">而无需 B/M</span><span class="sxs-lookup"><span data-stu-id="0ed38-144">Without B/M</span></span> | <span data-ttu-id="0ed38-145">更改</span><span class="sxs-lookup"><span data-stu-id="0ed38-145">Change</span></span>
+<span data-ttu-id="30f9e-131">操作</span><span class="sxs-lookup"><span data-stu-id="30f9e-131">Action</span></span> | <span data-ttu-id="30f9e-132">与 B/M</span><span class="sxs-lookup"><span data-stu-id="30f9e-132">With B/M</span></span> | <span data-ttu-id="30f9e-133">而无需 B/M</span><span class="sxs-lookup"><span data-stu-id="30f9e-133">Without B/M</span></span> | <span data-ttu-id="30f9e-134">更改</span><span class="sxs-lookup"><span data-stu-id="30f9e-134">Change</span></span>
 --- | :---: | :---: | :---:
-<span data-ttu-id="0ed38-146">文件请求</span><span class="sxs-lookup"><span data-stu-id="0ed38-146">File Requests</span></span> |<span data-ttu-id="0ed38-147">7</span><span class="sxs-lookup"><span data-stu-id="0ed38-147">7</span></span> | <span data-ttu-id="0ed38-148">18</span><span class="sxs-lookup"><span data-stu-id="0ed38-148">18</span></span> | <span data-ttu-id="0ed38-149">157%</span><span class="sxs-lookup"><span data-stu-id="0ed38-149">157%</span></span>
-<span data-ttu-id="0ed38-150">传输的 KB</span><span class="sxs-lookup"><span data-stu-id="0ed38-150">KB Transferred</span></span> | <span data-ttu-id="0ed38-151">156</span><span class="sxs-lookup"><span data-stu-id="0ed38-151">156</span></span> | <span data-ttu-id="0ed38-152">264.68</span><span class="sxs-lookup"><span data-stu-id="0ed38-152">264.68</span></span> | <span data-ttu-id="0ed38-153">70%</span><span class="sxs-lookup"><span data-stu-id="0ed38-153">70%</span></span>
-<span data-ttu-id="0ed38-154">加载时间 (MS)</span><span class="sxs-lookup"><span data-stu-id="0ed38-154">Load Time (MS)</span></span> | <span data-ttu-id="0ed38-155">885</span><span class="sxs-lookup"><span data-stu-id="0ed38-155">885</span></span> | <span data-ttu-id="0ed38-156">2360</span><span class="sxs-lookup"><span data-stu-id="0ed38-156">2360</span></span> | <span data-ttu-id="0ed38-157">167%</span><span class="sxs-lookup"><span data-stu-id="0ed38-157">167%</span></span>
+<span data-ttu-id="30f9e-135">文件请求</span><span class="sxs-lookup"><span data-stu-id="30f9e-135">File Requests</span></span>  | <span data-ttu-id="30f9e-136">7</span><span class="sxs-lookup"><span data-stu-id="30f9e-136">7</span></span>   | <span data-ttu-id="30f9e-137">18</span><span class="sxs-lookup"><span data-stu-id="30f9e-137">18</span></span>     | <span data-ttu-id="30f9e-138">157%</span><span class="sxs-lookup"><span data-stu-id="30f9e-138">157%</span></span>
+<span data-ttu-id="30f9e-139">传输的 KB</span><span class="sxs-lookup"><span data-stu-id="30f9e-139">KB Transferred</span></span> | <span data-ttu-id="30f9e-140">156</span><span class="sxs-lookup"><span data-stu-id="30f9e-140">156</span></span> | <span data-ttu-id="30f9e-141">264.68</span><span class="sxs-lookup"><span data-stu-id="30f9e-141">264.68</span></span> | <span data-ttu-id="30f9e-142">70%</span><span class="sxs-lookup"><span data-stu-id="30f9e-142">70%</span></span>
+<span data-ttu-id="30f9e-143">加载时间 (ms)</span><span class="sxs-lookup"><span data-stu-id="30f9e-143">Load Time (ms)</span></span> | <span data-ttu-id="30f9e-144">885</span><span class="sxs-lookup"><span data-stu-id="30f9e-144">885</span></span> | <span data-ttu-id="30f9e-145">2360</span><span class="sxs-lookup"><span data-stu-id="30f9e-145">2360</span></span>   | <span data-ttu-id="30f9e-146">167%</span><span class="sxs-lookup"><span data-stu-id="30f9e-146">167%</span></span>
 
-<span data-ttu-id="0ed38-158">发送的字节数必须是与绑定因为浏览器是与它们在请求应用的 HTTP 标头非常详细，大大减少。</span><span class="sxs-lookup"><span data-stu-id="0ed38-158">The bytes sent had a significant reduction with bundling as browsers are fairly verbose with the HTTP headers that they apply on requests.</span></span> <span data-ttu-id="0ed38-159">加载时间显示显著的改进，但在本地运行，此示例。</span><span class="sxs-lookup"><span data-stu-id="0ed38-159">The load time shows a big improvement, however this example was run locally.</span></span> <span data-ttu-id="0ed38-160">使用资产的绑定和缩减通过网络传输时，你将获得的性能更高的增益。</span><span class="sxs-lookup"><span data-stu-id="0ed38-160">You will get greater gains in performance when using bundling and minification with assets transferred over a network.</span></span>
+<span data-ttu-id="30f9e-147">浏览器是相当详细方面 HTTP 请求标头。</span><span class="sxs-lookup"><span data-stu-id="30f9e-147">Browsers are fairly verbose with regard to HTTP request headers.</span></span> <span data-ttu-id="30f9e-148">发送的总字节数度量值绑定时见到显著减少。</span><span class="sxs-lookup"><span data-stu-id="30f9e-148">The total bytes sent metric saw a significant reduction when bundling.</span></span> <span data-ttu-id="30f9e-149">加载时显示的重大进步，但此示例中本地运行。</span><span class="sxs-lookup"><span data-stu-id="30f9e-149">The load time shows a significant improvement, however this example ran locally.</span></span> <span data-ttu-id="30f9e-150">使用资产的绑定和缩减通过网络传输时，在实现更高的性能增益。</span><span class="sxs-lookup"><span data-stu-id="30f9e-150">Greater performance gains are realized when using bundling and minification with assets transferred over a network.</span></span>
 
-## <a name="using-bundling-and-minification-in-a-project"></a><span data-ttu-id="0ed38-161">在项目中使用绑定和缩减</span><span class="sxs-lookup"><span data-stu-id="0ed38-161">Using bundling and minification in a project</span></span>
+## <a name="choose-a-bundling-and-minification-strategy"></a><span data-ttu-id="30f9e-151">选择绑定和缩减策略</span><span class="sxs-lookup"><span data-stu-id="30f9e-151">Choose a bundling and minification strategy</span></span>
 
-<span data-ttu-id="0ed38-162">MVC 项目模板提供`bundleconfig.json`配置文件用于定义每个捆绑包的选项。</span><span class="sxs-lookup"><span data-stu-id="0ed38-162">The MVC project template provides a `bundleconfig.json` configuration file which defines the options for each bundle.</span></span> <span data-ttu-id="0ed38-163">默认情况下，一个捆绑包配置定义的自定义 javascript (`wwwroot/js/site.js`) 和样式表 (`wwwroot/css/site.css`) 文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-163">By default, a single bundle configuration is defined for the custom JavaScript (`wwwroot/js/site.js`) and Stylesheet (`wwwroot/css/site.css`) files.</span></span>
+<span data-ttu-id="30f9e-152">MVC 和 Razor 页项目模板提供的绑定和缩减包含的 JSON 配置文件的现成可用解决方案。</span><span class="sxs-lookup"><span data-stu-id="30f9e-152">The MVC and Razor Pages project templates provide an out-of-the-box solution for bundling and minification consisting of a JSON configuration file.</span></span> <span data-ttu-id="30f9e-153">第三方工具，如[Gulp](xref:client-side/using-gulp)和[Grunt](xref:client-side/using-grunt)任务流道，完成相同任务的更多的复杂性。</span><span class="sxs-lookup"><span data-stu-id="30f9e-153">Third-party tools, such as the [Gulp](xref:client-side/using-gulp) and [Grunt](xref:client-side/using-grunt) task runners, accomplish the same tasks with a bit more complexity.</span></span> <span data-ttu-id="30f9e-154">第三方工具开发工作流需要超出绑定和缩减的处理时非常适合&mdash;如 linting 和映像的优化。</span><span class="sxs-lookup"><span data-stu-id="30f9e-154">A third-party tool is a great fit when your development workflow requires processing beyond bundling and minification&mdash;such as linting and image optimization.</span></span> <span data-ttu-id="30f9e-155">通过使用设计时绑定和缩减，在应用程序的部署之前创建缩减的文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-155">By using design-time bundling and minification, the minified files are created prior to the app's deployment.</span></span> <span data-ttu-id="30f9e-156">绑定和在部署前贴图层提供减少的服务器负载的优点。</span><span class="sxs-lookup"><span data-stu-id="30f9e-156">Bundling and minifying before deployment provides the advantage of reduced server load.</span></span> <span data-ttu-id="30f9e-157">但是，务必要识别该设计时绑定，缩减会增加生成复杂性，并且仅适用于静态文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-157">However, it's important to recognize that design-time bundling and minification increases build complexity and only works with static files.</span></span>
 
-[!code-json[Main](../client-side/bundling-and-minification/samples/BuildBundlerMinifierExample/bundleconfig.json)]
+## <a name="configure-bundling-and-minification"></a><span data-ttu-id="30f9e-158">配置绑定和缩减</span><span class="sxs-lookup"><span data-stu-id="30f9e-158">Configure bundling and minification</span></span>
 
-<span data-ttu-id="0ed38-164">捆绑选项包括：</span><span class="sxs-lookup"><span data-stu-id="0ed38-164">Bundle options include:</span></span>
+<span data-ttu-id="30f9e-159">MVC 和 Razor 页项目模板提供了*bundleconfig.json*配置文件用于定义每个捆绑包的选项。</span><span class="sxs-lookup"><span data-stu-id="30f9e-159">The MVC and Razor Pages project templates provide a *bundleconfig.json* configuration file which defines the options for each bundle.</span></span> <span data-ttu-id="30f9e-160">默认情况下，一个捆绑包配置定义的自定义 javascript (*wwwroot/js/site.js*) 和样式表 (*wwwroot/css/site.css*) 文件：</span><span class="sxs-lookup"><span data-stu-id="30f9e-160">By default, a single bundle configuration is defined for the custom JavaScript (*wwwroot/js/site.js*) and stylesheet (*wwwroot/css/site.css*) files:</span></span>
 
-* <span data-ttu-id="0ed38-165">outputFileName-要输出捆绑文件的名称。</span><span class="sxs-lookup"><span data-stu-id="0ed38-165">outputFileName - name of the bundle file to output.</span></span> <span data-ttu-id="0ed38-166">可以包含中的相对路径`bundleconfig.json`文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-166">Can contain a relative path from the `bundleconfig.json` file.</span></span> <span data-ttu-id="0ed38-167">**必填**</span><span class="sxs-lookup"><span data-stu-id="0ed38-167">**required**</span></span>
-* <span data-ttu-id="0ed38-168">inputFiles-文件将捆绑在一起的数组。</span><span class="sxs-lookup"><span data-stu-id="0ed38-168">inputFiles - array of files to bundle together.</span></span> <span data-ttu-id="0ed38-169">这些是配置文件的相对路径。</span><span class="sxs-lookup"><span data-stu-id="0ed38-169">These are relative paths to the configuration file.</span></span> <span data-ttu-id="0ed38-170">**可选**，* 空值会在空的输出文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-170">**optional**, *an empty value results in an empty output file.</span></span> <span data-ttu-id="0ed38-171">[组合](http://www.tldp.org/LDP/abs/html/globbingref.html)支持模式。</span><span class="sxs-lookup"><span data-stu-id="0ed38-171">[globbing](http://www.tldp.org/LDP/abs/html/globbingref.html) patterns are supported.</span></span>
-* <span data-ttu-id="0ed38-172">minify-输出的缩减选项键入。</span><span class="sxs-lookup"><span data-stu-id="0ed38-172">minify - minification options for the output type.</span></span> <span data-ttu-id="0ed38-173">**可选**，*默认值-`minify: { enabled: true }`*</span><span class="sxs-lookup"><span data-stu-id="0ed38-173">**optional**, *default - `minify: { enabled: true }`*</span></span>
-  * <span data-ttu-id="0ed38-174">每个输出文件类型有配置选项。</span><span class="sxs-lookup"><span data-stu-id="0ed38-174">Configuration options are available per output file type.</span></span>
-    * [<span data-ttu-id="0ed38-175">CSS Minifier</span><span class="sxs-lookup"><span data-stu-id="0ed38-175">CSS Minifier</span></span>](https://github.com/madskristensen/BundlerMinifier/wiki/cssminifier)
-    * [<span data-ttu-id="0ed38-176">JavaScript Minifier</span><span class="sxs-lookup"><span data-stu-id="0ed38-176">JavaScript Minifier</span></span>](https://github.com/madskristensen/BundlerMinifier/wiki)
-    * [<span data-ttu-id="0ed38-177">HTML Minifier</span><span class="sxs-lookup"><span data-stu-id="0ed38-177">HTML Minifier</span></span>](https://github.com/madskristensen/BundlerMinifier/wiki)
-* <span data-ttu-id="0ed38-178">includeInProject-将生成的文件添加到项目文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-178">includeInProject - add generated files to project file.</span></span> <span data-ttu-id="0ed38-179">**可选**，*默认-false*</span><span class="sxs-lookup"><span data-stu-id="0ed38-179">**optional**, *default - false*</span></span>
-* <span data-ttu-id="0ed38-180">sourceMaps-生成捆绑的文件的源映射。</span><span class="sxs-lookup"><span data-stu-id="0ed38-180">sourceMaps - generate source maps for the bundled file.</span></span> <span data-ttu-id="0ed38-181">**可选**，*默认-false*</span><span class="sxs-lookup"><span data-stu-id="0ed38-181">**optional**, *default - false*</span></span>
+[!code-json[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/bundleconfig.json)]
 
-### <a name="visual-studio-2015--2017"></a><span data-ttu-id="0ed38-182">Visual Studio 2015 / 2017年</span><span class="sxs-lookup"><span data-stu-id="0ed38-182">Visual Studio 2015 / 2017</span></span>
+<span data-ttu-id="30f9e-161">捆绑选项包括：</span><span class="sxs-lookup"><span data-stu-id="30f9e-161">Bundle options include:</span></span>
 
-<span data-ttu-id="0ed38-183">打开`bundleconfig.json`Visual Studio 中，如果你的环境不具有安装; 扩展提示提供了几种建议一个无法帮助你与此文件类型。</span><span class="sxs-lookup"><span data-stu-id="0ed38-183">Open `bundleconfig.json` in Visual Studio, if your environment does not have the extension installed; a prompt is presented suggesting that there is one that could assist with this file type.</span></span>
+* <span data-ttu-id="30f9e-162">`outputFileName`： 要输出的捆绑文件名称。</span><span class="sxs-lookup"><span data-stu-id="30f9e-162">`outputFileName`: The name of the bundle file to output.</span></span> <span data-ttu-id="30f9e-163">可以包含中的相对路径*bundleconfig.json*文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-163">Can contain a relative path from the *bundleconfig.json* file.</span></span> <span data-ttu-id="30f9e-164">**必填**</span><span class="sxs-lookup"><span data-stu-id="30f9e-164">**required**</span></span>
+* <span data-ttu-id="30f9e-165">`inputFiles`： 要将捆绑在一起的文件的数组。</span><span class="sxs-lookup"><span data-stu-id="30f9e-165">`inputFiles`: An array of files to bundle together.</span></span> <span data-ttu-id="30f9e-166">这些是配置文件的相对路径。</span><span class="sxs-lookup"><span data-stu-id="30f9e-166">These are relative paths to the configuration file.</span></span> <span data-ttu-id="30f9e-167">**可选**，* 空值会在空的输出文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-167">**optional**, *an empty value results in an empty output file.</span></span> <span data-ttu-id="30f9e-168">[组合](http://www.tldp.org/LDP/abs/html/globbingref.html)支持模式。</span><span class="sxs-lookup"><span data-stu-id="30f9e-168">[globbing](http://www.tldp.org/LDP/abs/html/globbingref.html) patterns are supported.</span></span>
+* <span data-ttu-id="30f9e-169">`minify`： 输出类型缩减选项。</span><span class="sxs-lookup"><span data-stu-id="30f9e-169">`minify`: The minification options for the output type.</span></span> <span data-ttu-id="30f9e-170">**可选**，*默认值-`minify: { enabled: true }`*</span><span class="sxs-lookup"><span data-stu-id="30f9e-170">**optional**, *default - `minify: { enabled: true }`*</span></span>
+  * <span data-ttu-id="30f9e-171">每个输出文件类型有配置选项。</span><span class="sxs-lookup"><span data-stu-id="30f9e-171">Configuration options are available per output file type.</span></span>
+    * [<span data-ttu-id="30f9e-172">CSS Minifier</span><span class="sxs-lookup"><span data-stu-id="30f9e-172">CSS Minifier</span></span>](https://github.com/madskristensen/BundlerMinifier/wiki/cssminifier)
+    * [<span data-ttu-id="30f9e-173">JavaScript Minifier</span><span class="sxs-lookup"><span data-stu-id="30f9e-173">JavaScript Minifier</span></span>](https://github.com/madskristensen/BundlerMinifier/wiki/JavaScript-Minifier-settings)
+    * [<span data-ttu-id="30f9e-174">HTML Minifier</span><span class="sxs-lookup"><span data-stu-id="30f9e-174">HTML Minifier</span></span>](https://github.com/madskristensen/BundlerMinifier/wiki)
+* <span data-ttu-id="30f9e-175">`includeInProject`： 指示是否将生成的文件添加到项目文件的标志。</span><span class="sxs-lookup"><span data-stu-id="30f9e-175">`includeInProject`: Flag indicating whether to add generated files to project file.</span></span> <span data-ttu-id="30f9e-176">**可选**，*默认-false*</span><span class="sxs-lookup"><span data-stu-id="30f9e-176">**optional**, *default - false*</span></span>
+* <span data-ttu-id="30f9e-177">`sourceMap`： 指示是否生成捆绑的文件的源映射的标志。</span><span class="sxs-lookup"><span data-stu-id="30f9e-177">`sourceMap`: Flag indicating whether to generate a source map for the bundled file.</span></span> <span data-ttu-id="30f9e-178">**可选**，*默认-false*</span><span class="sxs-lookup"><span data-stu-id="30f9e-178">**optional**, *default - false*</span></span>
+* <span data-ttu-id="30f9e-179">`sourceMapRootPath`： 用于存储生成的源代码映射文件的根路径。</span><span class="sxs-lookup"><span data-stu-id="30f9e-179">`sourceMapRootPath`: The root path for storing the generated source map file.</span></span>
 
-![BuildBundlerMinifier 扩展建议](../client-side/bundling-and-minification/_static/bundler-extension-suggestion.png)
+## <a name="build-time-execution-of-bundling-and-minification"></a><span data-ttu-id="30f9e-180">生成时执行的绑定和缩减</span><span class="sxs-lookup"><span data-stu-id="30f9e-180">Build-time execution of bundling and minification</span></span>
 
-<span data-ttu-id="0ed38-185">选择查看扩展，并安装**捆绑包 （&) Minifier**扩展 （需要 Visual Studio 重启）。</span><span class="sxs-lookup"><span data-stu-id="0ed38-185">Select View Extensions, and install the **Bundler & Minifier** extension (Requires Visual Studio restart).</span></span>
+<span data-ttu-id="30f9e-181">[BuildBundlerMinifier](https://www.nuget.org/packages/BuildBundlerMinifier/) NuGet 包启用的绑定执行并在生成时的缩减。</span><span class="sxs-lookup"><span data-stu-id="30f9e-181">The [BuildBundlerMinifier](https://www.nuget.org/packages/BuildBundlerMinifier/) NuGet package enables the execution of bundling and minification at build time.</span></span> <span data-ttu-id="30f9e-182">包插入[MSBuild 目标](/visualstudio/msbuild/msbuild-targets)在生成和清理时间运行。</span><span class="sxs-lookup"><span data-stu-id="30f9e-182">The package injects [MSBuild Targets](/visualstudio/msbuild/msbuild-targets) which run at build and clean time.</span></span> <span data-ttu-id="30f9e-183">*Bundleconfig.json*文件分析由生成过程以生成基于定义的配置的输出文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-183">The *bundleconfig.json* file is analyzed by the build process to produce the output files based on the defined configuration.</span></span>
 
-![BuildBundlerMinifier 扩展建议](../client-side/bundling-and-minification/_static/view-extension.png)
+# <a name="visual-studiotabvisual-studio"></a>[<span data-ttu-id="30f9e-184">Visual Studio</span><span class="sxs-lookup"><span data-stu-id="30f9e-184">Visual Studio</span></span>](#tab/visual-studio) 
 
-<span data-ttu-id="0ed38-187">重新启动完成后，你需要配置要运行的进程贴图层，然后将捆绑的客户端资产的生成。</span><span class="sxs-lookup"><span data-stu-id="0ed38-187">When the restart is complete, you need to configure the build to run the processes of minifying and bundling the client-side assets.</span></span> <span data-ttu-id="0ed38-188">右键单击`bundleconfig.json`文件，然后选择*上生成的启用软件包...*.</span><span class="sxs-lookup"><span data-stu-id="0ed38-188">Right-click the `bundleconfig.json` file and select *Enable bundle on build...*.</span></span>
+<span data-ttu-id="30f9e-185">添加*BuildBundlerMinifier*包到你的项目。</span><span class="sxs-lookup"><span data-stu-id="30f9e-185">Add the *BuildBundlerMinifier* package to your project.</span></span>
 
-<span data-ttu-id="0ed38-189">生成项目时，与`bundleconfig.json`包含在生成过程以生成基于配置的输出文件中。</span><span class="sxs-lookup"><span data-stu-id="0ed38-189">Build the project, and the `bundleconfig.json` is included in the build process to produce the output files based on the configuration.</span></span>
+<span data-ttu-id="30f9e-186">生成项目。</span><span class="sxs-lookup"><span data-stu-id="30f9e-186">Build the project.</span></span> <span data-ttu-id="30f9e-187">以下内容出现在输出窗口：</span><span class="sxs-lookup"><span data-stu-id="30f9e-187">The following appears in the Output window:</span></span>
 
 ```console
-1>------ Build started: Project: BuildBundlerMinifierExample, Configuration: Debug Any CPU ------
+1>------ Build started: Project: BuildBundlerMinifierApp, Configuration: Debug Any CPU ------
 1>
 1>Bundler: Begin processing bundleconfig.json
+1>  Minified wwwroot/css/site.min.css
+1>  Minified wwwroot/js/site.min.js
 1>Bundler: Done processing bundleconfig.json
-1>BuildBundlerMinifierExample -> C:\BuildBundlerMinifierExample\bin\Debug\netcoreapp1.1\BuildBundlerMinifierExample.dll
-========== Build: 1 succeeded or up-to-date, 0 failed, 0 skipped ==========
+1>BuildBundlerMinifierApp -> C:\BuildBundlerMinifierApp\bin\Debug\netcoreapp2.0\BuildBundlerMinifierApp.dll
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
 ```
 
-### <a name="visual-studio-code-or-command-line"></a><span data-ttu-id="0ed38-190">Visual Studio Code 或命令行</span><span class="sxs-lookup"><span data-stu-id="0ed38-190">Visual Studio Code or Command Line</span></span>
+<span data-ttu-id="30f9e-188">清除该项目。</span><span class="sxs-lookup"><span data-stu-id="30f9e-188">Clean the project.</span></span> <span data-ttu-id="30f9e-189">以下内容出现在输出窗口：</span><span class="sxs-lookup"><span data-stu-id="30f9e-189">The following appears in the Output window:</span></span>
 
-<span data-ttu-id="0ed38-191">Visual Studio 和扩展驱动器使用 GUI 手势; 的绑定和缩减进程但是，相同的功能可与`dotnet`CLI 和 BuildBundlerMinifier NuGet 包。</span><span class="sxs-lookup"><span data-stu-id="0ed38-191">Visual Studio and the extension drive the bundling and minification process using GUI gestures; however, the same capabilities are available with the `dotnet` CLI and BuildBundlerMinifier NuGet package.</span></span>
+```console
+1>------ Clean started: Project: BuildBundlerMinifierApp, Configuration: Debug Any CPU ------
+1>
+1>Bundler: Cleaning output from bundleconfig.json
+1>Bundler: Done cleaning output file from bundleconfig.json
+========== Clean: 1 succeeded, 0 failed, 0 skipped ==========
+```
 
-<span data-ttu-id="0ed38-192">将 NuGet 包添加到你的项目：</span><span class="sxs-lookup"><span data-stu-id="0ed38-192">Add the NuGet package to your project:</span></span>
+# <a name="net-core-clitabnetcore-cli"></a>[<span data-ttu-id="30f9e-190">.NET Core CLI</span><span class="sxs-lookup"><span data-stu-id="30f9e-190">.NET Core CLI</span></span>](#tab/netcore-cli) 
+
+<span data-ttu-id="30f9e-191">添加*BuildBundlerMinifier*包到你的项目：</span><span class="sxs-lookup"><span data-stu-id="30f9e-191">Add the *BuildBundlerMinifier* package to your project:</span></span>
 
 ```console
 dotnet add package BuildBundlerMinifier
 ```
 
-<span data-ttu-id="0ed38-193">还原这些依赖项：</span><span class="sxs-lookup"><span data-stu-id="0ed38-193">Restore the dependencies:</span></span>
+<span data-ttu-id="30f9e-192">如果使用 ASP.NET 核心 1.x，还原新添加的包：</span><span class="sxs-lookup"><span data-stu-id="30f9e-192">If using ASP.NET Core 1.x, restore the newly added package:</span></span>
 
 ```console
 dotnet restore
 ```
 
-<span data-ttu-id="0ed38-194">生成应用程序：</span><span class="sxs-lookup"><span data-stu-id="0ed38-194">Build the app:</span></span>
+<span data-ttu-id="30f9e-193">生成项目：</span><span class="sxs-lookup"><span data-stu-id="30f9e-193">Build the project:</span></span>
 
 ```console
 dotnet build
 ```
 
-<span data-ttu-id="0ed38-195">生成命令的输出显示缩减和/或绑定根据配置的内容的结果。</span><span class="sxs-lookup"><span data-stu-id="0ed38-195">The output from the build command shows the results of the minification and/or bundling according to what is configured.</span></span>
+<span data-ttu-id="30f9e-194">将显示以下：</span><span class="sxs-lookup"><span data-stu-id="30f9e-194">The following appears:</span></span>
 
 ```console
-Microsoft (R) Build Engine version 15.1.545.13942
+Microsoft (R) Build Engine version 15.4.8.50001 for .NET Core
 Copyright (C) Microsoft Corporation. All rights reserved.
 
 
-  Bundler: Begin processing bundleconfig.json
-     Minified wwwroot/css/site.min.css
-  Bundler: Done processing bundleconfig.json
-  BuildBundlerMinifierExample -> /BuildBundlerMinifierExample/bin/Debug/netcoreapp1.0/BuildBundlerMinifierExample.dll
+    Bundler: Begin processing bundleconfig.json
+    Bundler: Done processing bundleconfig.json
+    BuildBundlerMinifierApp -> C:\BuildBundlerMinifierApp\bin\Debug\netcoreapp2.0\BuildBundlerMinifierApp.dll
 ```
 
-## <a name="adding-files"></a><span data-ttu-id="0ed38-196">将文件添加</span><span class="sxs-lookup"><span data-stu-id="0ed38-196">Adding files</span></span>
+<span data-ttu-id="30f9e-195">清除该项目：</span><span class="sxs-lookup"><span data-stu-id="30f9e-195">Clean the project:</span></span>
 
-<span data-ttu-id="0ed38-197">在此示例中，一个额外的 CSS 文件添加调用`custom.css`并且配置为绑定和缩减功能`site.css`，这会导致在单个`site.min.css`。</span><span class="sxs-lookup"><span data-stu-id="0ed38-197">In this example, an additional CSS file is added called `custom.css` and configured for bundling and minification with `site.css`, resulting in a single `site.min.css`.</span></span>
-
-<span data-ttu-id="0ed38-198">custom.css</span><span class="sxs-lookup"><span data-stu-id="0ed38-198">custom.css</span></span>
-
-```css
-.about, [role=main], [role=complementary]
-{
-    margin-top: 60px;
-}
-
-footer
-{
-    margin-top: 10px;
-}
+```console
+dotnet clean
 ```
 
-<span data-ttu-id="0ed38-199">添加的相对路径`bundleconfig.json`。</span><span class="sxs-lookup"><span data-stu-id="0ed38-199">Add the relative path to `bundleconfig.json`.</span></span>
+<span data-ttu-id="30f9e-196">显示以下输出：</span><span class="sxs-lookup"><span data-stu-id="30f9e-196">The following output appears:</span></span>
 
-[!code-json[Main](../client-side/bundling-and-minification/samples/BuildBundlerMinifierExample/bundleconfig2.json)]
+```console
+Microsoft (R) Build Engine version 15.4.8.50001 for .NET Core
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+
+  Bundler: Cleaning output from bundleconfig.json
+  Bundler: Done cleaning output file from bundleconfig.json
+```
+
+---
+
+## <a name="ad-hoc-execution-of-bundling-and-minification"></a><span data-ttu-id="30f9e-197">绑定和缩减的即席执行</span><span class="sxs-lookup"><span data-stu-id="30f9e-197">Ad hoc execution of bundling and minification</span></span>
+
+<span data-ttu-id="30f9e-198">它是无法在临时上, 运行的绑定和缩减的任务，而不生成项目。</span><span class="sxs-lookup"><span data-stu-id="30f9e-198">It's possible to run the bundling and minification tasks on an ad hoc basis, without building the project.</span></span> <span data-ttu-id="30f9e-199">添加[BundlerMinifier.Core](https://www.nuget.org/packages/BundlerMinifier.Core/)到你的项目的 NuGet 包：</span><span class="sxs-lookup"><span data-stu-id="30f9e-199">Add the [BundlerMinifier.Core](https://www.nuget.org/packages/BundlerMinifier.Core/) NuGet package to your project:</span></span>
+
+[!code-xml[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/BuildBundlerMinifierApp.csproj?range=10)]
+
+<span data-ttu-id="30f9e-200">此包扩展以包括.NET 核心 CLI *dotnet 捆绑*工具。</span><span class="sxs-lookup"><span data-stu-id="30f9e-200">This package extends the .NET Core CLI to include the *dotnet-bundle* tool.</span></span> <span data-ttu-id="30f9e-201">在包管理器控制台 (PMC) 窗口中或在命令行界面，可以执行以下命令：</span><span class="sxs-lookup"><span data-stu-id="30f9e-201">The following command can be executed in the Package Manager Console (PMC) window or in a command shell:</span></span>
+
+```console
+dotnet bundle
+```
+
+> [!IMPORTANT]
+> <span data-ttu-id="30f9e-202">NuGet 包管理器将依赖项添加到 *.csproj 文件作为`<PackageReference />`节点。</span><span class="sxs-lookup"><span data-stu-id="30f9e-202">NuGet Package Manager adds dependencies to the *.csproj file as `<PackageReference />` nodes.</span></span> <span data-ttu-id="30f9e-203">`dotnet bundle`命令注册.NET 核心 CLI 时，才`<DotNetCliToolReference />`使用节点。</span><span class="sxs-lookup"><span data-stu-id="30f9e-203">The `dotnet bundle` command is registered with the .NET Core CLI only when a `<DotNetCliToolReference />` node is used.</span></span> <span data-ttu-id="30f9e-204">相应地修改 *.csproj 文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-204">Modify the *.csproj file accordingly.</span></span>
+
+## <a name="add-files-to-workflow"></a><span data-ttu-id="30f9e-205">将文件添加到工作流</span><span class="sxs-lookup"><span data-stu-id="30f9e-205">Add files to workflow</span></span>
+
+<span data-ttu-id="30f9e-206">考虑在其中一个示例附加*custom.css*文件会添加与下面类似的：</span><span class="sxs-lookup"><span data-stu-id="30f9e-206">Consider an example in which an additional *custom.css* file is added resembling the following:</span></span>
+
+[!code-css[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/wwwroot/css/custom.css)]
+
+<span data-ttu-id="30f9e-207">若要 minify *custom.css*和捆绑其与*site.css*到*site.min.css*文件中，添加的相对路径*bundleconfig.json*:</span><span class="sxs-lookup"><span data-stu-id="30f9e-207">To minify *custom.css* and bundle it with *site.css* into a *site.min.css* file, add the relative path to *bundleconfig.json*:</span></span>
+
+[!code-json[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/bundleconfig2.json?highlight=6)]
 
 > [!NOTE]
-> <span data-ttu-id="0ed38-200">或者，可以使用组合模式-`"inputFiles": ["wwwroot/**/*(*.css|!(*.min.css)"]`后者将获取所有 CSS 文件，不包括缩减的文件模式。</span><span class="sxs-lookup"><span data-stu-id="0ed38-200">Alternatively, the globbing pattern could be used - `"inputFiles": ["wwwroot/**/*(*.css|!(*.min.css)"]` which gets all CSS files and excludes the minified file pattern.</span></span>
+> <span data-ttu-id="30f9e-208">或者，可使用以下的组合模式：</span><span class="sxs-lookup"><span data-stu-id="30f9e-208">Alternatively, the following globbing pattern could be used:</span></span>
+>
+> ```json
+> "inputFiles": ["wwwroot/**/*(*.css|!(*.min.css)"]
+> ```
+>
+> <span data-ttu-id="30f9e-209">此组合模式匹配所有 CSS 文件，并排除缩减的文件模式。</span><span class="sxs-lookup"><span data-stu-id="30f9e-209">This globbing pattern matches all CSS files and excludes the minified file pattern.</span></span>
 
-<span data-ttu-id="0ed38-201">生成应用程序和如果打开`site.min.css`，现在将注意到，内容`custom.css`已追加到文件末尾。</span><span class="sxs-lookup"><span data-stu-id="0ed38-201">Build the application and if you open `site.min.css`, you'll now notice that contents of `custom.css` has been appended to the end of the file.</span></span>
+<span data-ttu-id="30f9e-210">生成应用程序。</span><span class="sxs-lookup"><span data-stu-id="30f9e-210">Build the application.</span></span> <span data-ttu-id="30f9e-211">打开*site.min.css* ，并注意的内容*custom.css*追加到文件末尾。</span><span class="sxs-lookup"><span data-stu-id="30f9e-211">Open *site.min.css* and notice the content of *custom.css* is appended to the end of the file.</span></span>
 
-## <a name="controlling-bundling-and-minification"></a><span data-ttu-id="0ed38-202">控制绑定和缩减</span><span class="sxs-lookup"><span data-stu-id="0ed38-202">Controlling bundling and minification</span></span>
+## <a name="environment-based-bundling-and-minification"></a><span data-ttu-id="30f9e-212">基于环境的绑定和缩减</span><span class="sxs-lookup"><span data-stu-id="30f9e-212">Environment-based bundling and minification</span></span>
 
-<span data-ttu-id="0ed38-203">一般情况下，你想要使用您的应用程序仅在生产环境中的捆绑和缩减型文件。</span><span class="sxs-lookup"><span data-stu-id="0ed38-203">In general, you want to use the bundled and minified files of your app only in a production environment.</span></span> <span data-ttu-id="0ed38-204">在开发期间，你想要使用原始文件，因此你的应用程序是更轻松地调试。</span><span class="sxs-lookup"><span data-stu-id="0ed38-204">During development, you want to use your original files so your app is easier to debug.</span></span>
+<span data-ttu-id="30f9e-213">作为最佳做法，应在生产环境中使用你的应用的捆绑和缩减型文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-213">As a best practice, the bundled and minified files of your app should be used in a production environment.</span></span> <span data-ttu-id="30f9e-214">在开发期间，为方便调试应用程序将使原始文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-214">During development, the original files make for easier debugging of the app.</span></span>
 
-<span data-ttu-id="0ed38-205">你可以指定哪些脚本和 CSS 文件，以包括页面布局页中使用环境标记帮助程序中 (请参阅[标记帮助程序](../mvc/views/tag-helpers/index.md))。</span><span class="sxs-lookup"><span data-stu-id="0ed38-205">You can specify which scripts and CSS files to include in your pages using the environment tag helper in your layout pages (see [Tag Helpers](../mvc/views/tag-helpers/index.md)).</span></span> <span data-ttu-id="0ed38-206">在特定环境中运行时，环境标记帮助器将仅呈现其内容。</span><span class="sxs-lookup"><span data-stu-id="0ed38-206">The environment tag helper will only render its contents when running in specific environments.</span></span> <span data-ttu-id="0ed38-207">请参阅[使用多个环境](../fundamentals/environments.md)有关指定当前的环境的详细信息。</span><span class="sxs-lookup"><span data-stu-id="0ed38-207">See [Working with Multiple Environments](../fundamentals/environments.md) for details on specifying the current environment.</span></span>
+<span data-ttu-id="30f9e-215">指定要通过使用在您的网页中包括哪些文件[环境标记帮助器](xref:mvc/views/tag-helpers/builtin-th/environment-tag-helper)在您的视图。</span><span class="sxs-lookup"><span data-stu-id="30f9e-215">Specify which files to include in your pages by using the [Environment Tag Helper](xref:mvc/views/tag-helpers/builtin-th/environment-tag-helper) in your views.</span></span> <span data-ttu-id="30f9e-216">环境标记帮助器只呈现其内容，在特定运行时[环境](xref:fundamentals/environments)。</span><span class="sxs-lookup"><span data-stu-id="30f9e-216">The Environment Tag Helper only renders its contents when running in specific [environments](xref:fundamentals/environments).</span></span>
 
-<span data-ttu-id="0ed38-208">在运行时，以下环境标记将呈现的未处理的 CSS 文件`Development`环境：</span><span class="sxs-lookup"><span data-stu-id="0ed38-208">The following environment tag will render the unprocessed CSS files when running in the `Development` environment:</span></span>
+<span data-ttu-id="30f9e-217">以下`environment`标记将呈现的未处理的 CSS 文件，在运行时`Development`环境：</span><span class="sxs-lookup"><span data-stu-id="30f9e-217">The following `environment` tag renders the unprocessed CSS files when running in the `Development` environment:</span></span>
 
-[!code-html[Main](../client-side/bundling-and-minification/samples/BuildBundlerMinifierExample/Views/Shared/_Layout.cshtml?highlight=3&range=9-12)]
+# <a name="aspnet-core-2xtabaspnetcore2x"></a>[<span data-ttu-id="30f9e-218">ASP.NET Core 2.x</span><span class="sxs-lookup"><span data-stu-id="30f9e-218">ASP.NET Core 2.x</span></span>](#tab/aspnetcore2x)
 
-<span data-ttu-id="0ed38-209">仅在运行时，此环境标记将呈现的捆绑和缩减型 CSS 文件`Production`或`Staging`:</span><span class="sxs-lookup"><span data-stu-id="0ed38-209">This environment tag will render the bundled and minified CSS files only when running in `Production` or `Staging`:</span></span>
+[!code-cshtml[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/Pages/_Layout.cshtml?highlight=3&range=21-24)]
 
-[!code-html[Main](../client-side/bundling-and-minification/samples/BuildBundlerMinifierExample/Views/Shared/_Layout.cshtml?highlight=5&range=13-18)]
+# <a name="aspnet-core-1xtabaspnetcore1x"></a>[<span data-ttu-id="30f9e-219">ASP.NET Core 1.x</span><span class="sxs-lookup"><span data-stu-id="30f9e-219">ASP.NET Core 1.x</span></span>](#tab/aspnetcore1x)
 
-## <a name="consuming-bundleconfigjson-from-gulp"></a><span data-ttu-id="0ed38-210">使用从 Gulp bundleconfig.json</span><span class="sxs-lookup"><span data-stu-id="0ed38-210">Consuming bundleconfig.json from Gulp</span></span>
+[!code-cshtml[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/Pages/_Layout.cshtml?highlight=3&range=9-12)]
 
-<span data-ttu-id="0ed38-211">如果你的应用绑定和缩减工作流需要其他进程，如图像处理、 缓存清除功能、 CDN assest 处理等，然后可以将 Gulp 转换的捆绑和 Minify 过程。</span><span class="sxs-lookup"><span data-stu-id="0ed38-211">If your app bundling and minification workflow requires additional processes such as image processing, cache busting, CDN assest processing, etc., then you can convert the Bundle and Minify process to Gulp.</span></span>
+---
 
-> [!NOTE]
-> <span data-ttu-id="0ed38-212">转换选项仅在 Visual Studio 2015 和自 2017 年 1 中可用。</span><span class="sxs-lookup"><span data-stu-id="0ed38-212">Conversion option only available in Visual Studio 2015 and 2017.</span></span>
+<span data-ttu-id="30f9e-220">以下`environment`标记呈现捆绑和缩减型 CSS 文件，而不在环境中运行时`Development`。</span><span class="sxs-lookup"><span data-stu-id="30f9e-220">The following `environment` tag renders the bundled and minified CSS files when running in an environment other than `Development`.</span></span> <span data-ttu-id="30f9e-221">例如，在运行`Production`或`Staging`触发这些样式表的呈现：</span><span class="sxs-lookup"><span data-stu-id="30f9e-221">For example, running in `Production` or `Staging` triggers the rendering of these stylesheets:</span></span>
 
-<span data-ttu-id="0ed38-213">右键单击`bundleconfig.json`和选择**将转换为 Gulp...**.这将生成`gulpfile.js`并安装必要的 npm 包。</span><span class="sxs-lookup"><span data-stu-id="0ed38-213">Right-click the `bundleconfig.json` and select **Convert to Gulp...**. This will generate the `gulpfile.js` and install the necessary npm packages.</span></span>
+# <a name="aspnet-core-2xtabaspnetcore2x"></a>[<span data-ttu-id="30f9e-222">ASP.NET Core 2.x</span><span class="sxs-lookup"><span data-stu-id="30f9e-222">ASP.NET Core 2.x</span></span>](#tab/aspnetcore2x)
 
-![将转换为 Gulp](../client-side/bundling-and-minification/_static/convert-togulp.png)
+[!code-cshtml[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/Pages/_Layout.cshtml?highlight=5&range=25-30)]
 
-<span data-ttu-id="0ed38-215">`gulpfile.js`生成读取`bundleconfig.json`文件有关的配置，因此它可以继续用于进行输入/输出和设置。</span><span class="sxs-lookup"><span data-stu-id="0ed38-215">The `gulpfile.js` produced reads the `bundleconfig.json` file for the configuration, therefore it can continue to be used for the inputs/outputs and settings.</span></span>
+# <a name="aspnet-core-1xtabaspnetcore1x"></a>[<span data-ttu-id="30f9e-223">ASP.NET Core 1.x</span><span class="sxs-lookup"><span data-stu-id="30f9e-223">ASP.NET Core 1.x</span></span>](#tab/aspnetcore1x)
 
-[!code-javascript[Main](../client-side/bundling-and-minification/samples/BuildBundlerMinifierExample/gulpfile.js)]
+[!code-cshtml[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/Pages/_Layout.cshtml?highlight=3&range=13-18)]
 
-<span data-ttu-id="0ed38-216">若要在 Visual Studio 2017 生成项目时，请启用 Gulp，请向 *.csproj 文件中添加以下：</span><span class="sxs-lookup"><span data-stu-id="0ed38-216">To enable Gulp when the project builds in Visual Studio 2017, add the following to the *.csproj file:</span></span>
+---
 
-```xml
-<Target Name="MyPreCompileTarget" BeforeTargets="Build">
-    <Exec Command="gulp min" />
-</Target>
+## <a name="consume-bundleconfigjson-from-gulp"></a><span data-ttu-id="30f9e-224">使用从 Gulp bundleconfig.json</span><span class="sxs-lookup"><span data-stu-id="30f9e-224">Consume bundleconfig.json from Gulp</span></span>
+
+<span data-ttu-id="30f9e-225">在情况下在其中应用的绑定和缩减工作流需要额外的处理。</span><span class="sxs-lookup"><span data-stu-id="30f9e-225">There are cases in which an app's bundling and minification workflow requires additional processing.</span></span> <span data-ttu-id="30f9e-226">示例包括映像优化、 缓存清除功能，和 CDN 资产处理。</span><span class="sxs-lookup"><span data-stu-id="30f9e-226">Examples include image optimization, cache busting, and CDN asset processing.</span></span> <span data-ttu-id="30f9e-227">若要满足这些要求，则可以将绑定和缩减工作流使用 Gulp。</span><span class="sxs-lookup"><span data-stu-id="30f9e-227">To satisfy these requirements, you can convert the bundling and minification workflow to use Gulp.</span></span>
+
+### <a name="use-the-bundler--minifier-extension"></a><span data-ttu-id="30f9e-228">使用捆绑包 （&） Minifier 扩展</span><span class="sxs-lookup"><span data-stu-id="30f9e-228">Use the Bundler & Minifier extension</span></span>
+
+<span data-ttu-id="30f9e-229">Visual Studio[捆绑包 （&) Minifier](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.BundlerMinifier)扩展会转换为 Gulp。</span><span class="sxs-lookup"><span data-stu-id="30f9e-229">The Visual Studio [Bundler & Minifier](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.BundlerMinifier) extension handles the conversion to Gulp.</span></span>
+
+<span data-ttu-id="30f9e-230">右键单击*bundleconfig.json*文件在解决方案资源管理器中，然后选择**捆绑包 （&) Minifier** > **转换到的 Gulp...**:</span><span class="sxs-lookup"><span data-stu-id="30f9e-230">Right-click the *bundleconfig.json* file in Solution Explorer and select **Bundler & Minifier** > **Convert To Gulp...**:</span></span>
+
+![将转换到的 Gulp 上下文菜单项](../client-side/bundling-and-minification/_static/convert-to-gulp.png)
+
+<span data-ttu-id="30f9e-232">*Gulpfile.js*和*package.json*文件添加到项目。</span><span class="sxs-lookup"><span data-stu-id="30f9e-232">The *gulpfile.js* and *package.json* files are added to the project.</span></span> <span data-ttu-id="30f9e-233">支持[npm](https://www.npmjs.com/)中列出的包*package.json*文件的`devDependencies`部分安装。</span><span class="sxs-lookup"><span data-stu-id="30f9e-233">The supporting [npm](https://www.npmjs.com/) packages listed in the *package.json* file's `devDependencies` section are installed.</span></span>
+
+<span data-ttu-id="30f9e-234">为全局依赖项安装的 Gulp CLI PMC 窗口中运行以下命令：</span><span class="sxs-lookup"><span data-stu-id="30f9e-234">Run the following command in the PMC window to install the Gulp CLI as a global dependency:</span></span>
+
+```console
+npm i -g gulp-cli
 ```
 
-<span data-ttu-id="0ed38-217">若要启用 Gulp，Visual Studio 2015 中生成项目时，将以下代码添加到`project.json`文件：</span><span class="sxs-lookup"><span data-stu-id="0ed38-217">To enable Gulp when the project builds in Visual Studio 2015, add the following to the `project.json` file:</span></span>
+<span data-ttu-id="30f9e-235">*Gulpfile.js*文件读取*bundleconfig.json*输入、 输出和设置的文件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-235">The *gulpfile.js* file reads the *bundleconfig.json* file for the inputs, outputs, and settings.</span></span>
 
-```json
-"scripts": {
-    "precompile": "gulp min"
-}
+[!code-javascript[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/gulpfile.js?range=1-12&highlight=10)]
+
+### <a name="convert-manually"></a><span data-ttu-id="30f9e-236">手动转换</span><span class="sxs-lookup"><span data-stu-id="30f9e-236">Convert manually</span></span>
+
+<span data-ttu-id="30f9e-237">如果 Visual Studio 和/或捆绑包 （&） Minifier 扩展都不可用，将转换手动。</span><span class="sxs-lookup"><span data-stu-id="30f9e-237">If Visual Studio and/or the Bundler & Minifier extension aren't available, convert manually.</span></span>
+
+<span data-ttu-id="30f9e-238">添加*package.json*文件中的，替换为以下`devDependencies`，与项目根目录：</span><span class="sxs-lookup"><span data-stu-id="30f9e-238">Add a *package.json* file, with the following `devDependencies`, to the project root:</span></span>
+
+[!code-json[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/package.json?range=5-13)]
+
+<span data-ttu-id="30f9e-239">通过在相同的级别中运行以下命令安装依赖项*package.json*:</span><span class="sxs-lookup"><span data-stu-id="30f9e-239">Install the dependencies by running the following command at the same level as *package.json*:</span></span>
+
+```console
+npm i
 ```
 
-## <a name="additional-resources"></a><span data-ttu-id="0ed38-218">其他资源</span><span class="sxs-lookup"><span data-stu-id="0ed38-218">Additional resources</span></span>
+<span data-ttu-id="30f9e-240">为全局依赖项安装的 Gulp CLI:</span><span class="sxs-lookup"><span data-stu-id="30f9e-240">Install the Gulp CLI as a global dependency:</span></span>
 
-* [<span data-ttu-id="0ed38-219">使用 Gulp</span><span class="sxs-lookup"><span data-stu-id="0ed38-219">Using Gulp</span></span>](using-gulp.md)
-* [<span data-ttu-id="0ed38-220">使用 Grunt</span><span class="sxs-lookup"><span data-stu-id="0ed38-220">Using Grunt</span></span>](using-grunt.md)
-* [<span data-ttu-id="0ed38-221">使用多个环境</span><span class="sxs-lookup"><span data-stu-id="0ed38-221">Working with Multiple Environments</span></span>](../fundamentals/environments.md)
-* [<span data-ttu-id="0ed38-222">标记帮助程序</span><span class="sxs-lookup"><span data-stu-id="0ed38-222">Tag Helpers</span></span>](../mvc/views/tag-helpers/index.md)
+```console
+npm i -g gulp-cli
+```
+
+<span data-ttu-id="30f9e-241">复制*gulpfile.js*到项目根目录下面文件：</span><span class="sxs-lookup"><span data-stu-id="30f9e-241">Copy the *gulpfile.js* file below to the project root:</span></span>
+
+[!code-javascript[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/gulpfile.js?range=1-11,14-)]
+
+### <a name="run-gulp-tasks"></a><span data-ttu-id="30f9e-242">运行 Gulp 任务</span><span class="sxs-lookup"><span data-stu-id="30f9e-242">Run Gulp tasks</span></span>
+
+<span data-ttu-id="30f9e-243">若要触发 Gulp 缩减任务之前生成 Visual Studio 中的项目，添加以下[MSBuild 目标](/visualstudio/msbuild/msbuild-targets)*.csproj 文件：</span><span class="sxs-lookup"><span data-stu-id="30f9e-243">To trigger the Gulp minification task before the project builds in Visual Studio, add the following [MSBuild Target](/visualstudio/msbuild/msbuild-targets) to the *.csproj file:</span></span>
+
+[!code-xml[](../client-side/bundling-and-minification/samples/BuildBundlerMinifierApp/BuildBundlerMinifierApp.csproj?range=14-16)]
+
+<span data-ttu-id="30f9e-244">在此示例中，在内定义的任何任务`MyPreCompileTarget`目标之前预定义运行`Build`目标。</span><span class="sxs-lookup"><span data-stu-id="30f9e-244">In this example, any tasks defined within the `MyPreCompileTarget` target run before the predefined `Build` target.</span></span> <span data-ttu-id="30f9e-245">在 Visual Studio 输出窗口将显示类似于下面的输出：</span><span class="sxs-lookup"><span data-stu-id="30f9e-245">Output similar to the following appears in Visual Studio's Output window:</span></span>
+
+```console
+1>------ Build started: Project: BuildBundlerMinifierApp, Configuration: Debug Any CPU ------
+1>BuildBundlerMinifierApp -> C:\BuildBundlerMinifierApp\bin\Debug\netcoreapp2.0\BuildBundlerMinifierApp.dll
+1>[14:17:49] Using gulpfile C:\BuildBundlerMinifierApp\gulpfile.js
+1>[14:17:49] Starting 'min:js'...
+1>[14:17:49] Starting 'min:css'...
+1>[14:17:49] Starting 'min:html'...
+1>[14:17:49] Finished 'min:js' after 83 ms
+1>[14:17:49] Finished 'min:css' after 88 ms
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+```
+
+<span data-ttu-id="30f9e-246">或者，Visual Studio 任务运行程序资源管理器可能用于将 Gulp 任务绑定到特定的 Visual Studio 事件。</span><span class="sxs-lookup"><span data-stu-id="30f9e-246">Alternatively, Visual Studio's Task Runner Explorer may be used to bind Gulp tasks to specific Visual Studio events.</span></span> <span data-ttu-id="30f9e-247">请参阅[正在运行的默认任务](xref:client-side/using-gulp#running-default-tasks)有关执行此操作的说明。</span><span class="sxs-lookup"><span data-stu-id="30f9e-247">See [Running default tasks](xref:client-side/using-gulp#running-default-tasks) for instructions on doing that.</span></span>
+
+## <a name="additional-resources"></a><span data-ttu-id="30f9e-248">其他资源</span><span class="sxs-lookup"><span data-stu-id="30f9e-248">Additional resources</span></span>
+
+* [<span data-ttu-id="30f9e-249">使用 Gulp</span><span class="sxs-lookup"><span data-stu-id="30f9e-249">Using Gulp</span></span>](xref:client-side/using-gulp)
+* [<span data-ttu-id="30f9e-250">使用 Grunt</span><span class="sxs-lookup"><span data-stu-id="30f9e-250">Using Grunt</span></span>](xref:client-side/using-grunt)
+* [<span data-ttu-id="30f9e-251">使用多个环境</span><span class="sxs-lookup"><span data-stu-id="30f9e-251">Working with Multiple Environments</span></span>](xref:fundamentals/environments)
+* [<span data-ttu-id="30f9e-252">标记帮助程序</span><span class="sxs-lookup"><span data-stu-id="30f9e-252">Tag Helpers</span></span>](xref:mvc/views/tag-helpers/intro)
