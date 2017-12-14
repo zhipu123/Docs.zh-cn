@@ -48,7 +48,7 @@ ASP.NET 核心包括简单的内置容器 (由表示`IServiceProvider`接口)，
 
 构造函数注入需要问题的构造函数将*公共*。 否则，你的应用程序会引发`InvalidOperationException`:
 
-> 找不到类型 YourType 合适的构造函数。 请确保该类型是具体的服务注册的所有参数的公共构造函数。
+> 找不到类型 YourType 合适的构造函数。 请确保该类型是具体的服务注册的所有参数的公共构造函数。hbgfhdaisgfdighghfixghfdsi
 
 
 构造函数注入要求存在该只有一个适用的构造函数。 构造函数重载都受支持，但只有一个重载可以存在该形参的实参可以所有完成的依赖关系注入。 如果存在多个，你的应用程序将引发`InvalidOperationException`:
