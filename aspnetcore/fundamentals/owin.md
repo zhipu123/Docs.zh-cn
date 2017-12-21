@@ -18,27 +18,31 @@ ms.translationtype: MT
 ms.contentlocale: zh-CN
 ms.lasthandoff: 11/10/2017
 ---
-# <a name="introduction-to-open-web-interface-for-net-owin"></a>若要打开.NET (OWIN) 的 Web 界面的简介
+# <a name="introduction-to-open-web-interface-for-net-owin"></a>.NET Web 开放标准接口(OWIN)简介
 
 通过[Steve Smith](https://ardalis.com/)和[Rick Anderson](https://twitter.com/RickAndMSFT)
+
 
 ASP.NET Core 支持 .NET 的开放 Web 接口 (OWIN)。 OWIN 允许 Web 应用从 Web 服务器分离。 它定义的中间件来用于在管道中使用，以处理请求和响应关联的标准方法。 ASP.NET Core 应用程序和中间件可以与基于 OWIN 的应用程序、 服务器和中间件互操作。
 
 OWIN 提供了允许与不同的对象模型一起使用的两个框架解除层。 `Microsoft.AspNetCore.Owin`包提供了两个适配器实现：
-- OWIN 到 ASP.NET 核心 
-- OWIN 到 ASP.NET 核心
+- 从 OWIN 到 ASP.NET Core 
+- 从 ASP.NET Core 到 OWIN 
 
-这允许基于 OWIN 兼容服务器/主机，或在 ASP.NET Core 上运行其他 OWIN 兼容组件托管的 ASP.NET Core。
+这样 ASP.NET Core 应用就可以托管在基于 OWIN 的服务器/主机，另外又可以在 ASP.NET Core 上运行其他 OWIN 兼容的组件。
 
-注意： 使用这些适配器附带有一定的性能开销。 使用仅 ASP.NET 核心组件的应用程序不应使用 Owin 包或适配器。
+注意： 使用这些适配器附带有一定的性能开销。 如果仅仅使用了 ASP.NET Core的应用程序不应使用 Owin 的包或适配器。
 
 [查看或下载示例代码](https://github.com/aspnet/Docs/tree/master/aspnetcore/fundamentals/owin/sample)（[如何下载](xref:tutorials/index#how-to-download-a-sample)）
 
-## <a name="running-owin-middleware-in-the-aspnet-pipeline"></a>在 ASP.NET 管线中运行 OWIN 中间件
+## <a name="running-owin-middleware-in-the-aspnet-pipeline"></a>在 ASP.NET 管道中运行 OWIN 中间件
 
-ASP.NET 核心 OWIN 支持部署的一部分`Microsoft.AspNetCore.Owin`包。 你可以通过安装此包导入你的项目的 OWIN 支持。
+ASP.NET Core 对于 OWIN 的支持包含在`Microsoft.AspNetCore.Owin`包中。 你可以通过安装此包导入你的项目的中来获取 OWIN 支持。
 
-OWIN 中间件符合[OWIN 规范](http://owin.org/spec/spec/owin-1.0.0.html)，这要求`Func<IDictionary<string, object>, Task>`接口和特定的密钥设置 (如`owin.ResponseBody`)。 以下简单的 OWIN 中间件将显示"Hello World":
+OWIN middleware conforms to the OWIN specification, which requires a Func<IDictionary<string, object>, Task> interface, and specific keys be set (such as owin.ResponseBody). The following simple OWIN middleware displays "Hello World":
+
+
+OWIN 中间件遵循[OWIN 规范](http://owin.org/spec/spec/owin-1.0.0.html)，他实现了`Func<IDictionary<string, object>, Task>`接口并通过特定的键值对操作环境变量 (如`owin.ResponseBody`)。 以下简单的 OWIN 中间件将显示"Hello World":
 
 ```csharp
 public Task OwinHello(IDictionary<string, object> environment)
@@ -57,9 +61,9 @@ public Task OwinHello(IDictionary<string, object> environment)
 }
 ```
 
-示例签名返回`Task`并接受`IDictionary<string, object>`OWIN 通过所需的方式。
+示例代码 遵循 OWIN 标准返回`Task`并接受`IDictionary<string, object>`作为参数 。
 
-下面的代码演示如何添加`OwinHello`（上面所述） 向 ASP.NET 管道使用的中间件`UseOwin`扩展方法。
+下面的代码演示如何将 `OwinHello`（上面所述） 中间件添加到 ASP.NET 的管道中,只需要使用 `UseOwin`扩展方法。
 
 ```csharp
 public void Configure(IApplicationBuilder app)
@@ -71,13 +75,13 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
-你可以配置在 OWIN 管道中进行其他操作。
+你可以使用通过OWIN 管道配置更多的操作。
 
 > [!NOTE]
-> 仅应在首次向响应流写入之前修改响应标头。
+> 必须在首次向响应流写入之前修改响应标头。
 
 > [!NOTE]
-> 多次调用`UseOwin`出于性能原因不建议这样做。 如果组合在一起，OWIN 组件将最好地运行。
+> 不建议多次调用`UseOwin`,因为这样可能会引发性能问题。最好的方式是将OWIN Pipeline系统的组合在一起。
 
 ```csharp
 app.UseOwin(pipeline =>
@@ -93,15 +97,18 @@ app.UseOwin(pipeline =>
 
 <a name="hosting-on-owin"></a>
 
-## <a name="using-aspnet-hosting-on-an-owin-based-server"></a>使用基于 OWIN 的服务器上的 ASP.NET 宿主
+## <a name="using-aspnet-hosting-on-an-owin-based-server"></a>在基于 OWIN 的服务器上 使用 ASP.NET 
 
-基于 OWIN 的服务器可以承载 ASP.NET 应用程序。 此类的一台服务器是[Nowin](https://github.com/Bobris/Nowin)，.NET OWIN web 服务器。 在本文示例中，我已包含引用 Nowin 并使用它来创建一个项目项目`IServer`能够自承载 ASP.NET Core。
+基于 OWIN 的服务器可以承载 ASP.NET 应用程序。 [Nowin](https://github.com/Bobris/Nowin)就是基于 OWIN 的服务器中的一个实现。 在本文示例中，我们创建了一个项目，这个项引用了 Nowin 并使用它创建了一个可以运行　ASP.NET Core　的　`IServer` 。
 
 [!code-csharp[Main](owin/sample/src/NowinSample/Program.cs?highlight=15)]
 
-`IServer`是接口，需要`Features`属性和`Start`方法。
+Start is responsible for configuring and starting the server, which in this case is done through a series of fluent API calls that set addresses parsed from the IServerAddressesFeature. Note that the fluent configuration of the _builder variable specifies that requests will be handled by the appFunc defined earlier in the method. This Func is called on each request to process incoming requests.
 
-`Start`负责配置和启动服务器，在这种情况下通过一系列从 IServerAddressesFeature 设置地址分析的 fluent API 调用。 请注意的 fluent 配置`_builder`变量指定将由处理请求`appFunc`先前在方法中定义。 这`Func`称为上每个请求以处理传入的请求。
+We'll also add an IWebHostBuilder extension to make it easy to add and configure the Nowin server.
+`IServer`作为接口，需要`Features`属性和`Start`方法。
+
+`Start`负责配置和启动服务器．通过一连串的fluent API调用, 我们设置Server的地址,这些地址是从 IServerAddressesFeature 那里解析出来的。 请注意的 fluent 配置`_builder`变量指定了所有的请求会被方法里指定的`appFunc`响应。 每个请求以处理传入的请求都会被这个`Func`处理。
 
 我们还将添加`IWebHostBuilder`扩展，以便可以方便地添加和配置 Nowin 服务器。
 
